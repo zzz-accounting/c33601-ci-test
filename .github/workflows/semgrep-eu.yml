@@ -1,0 +1,25 @@
+name: Semgrep EU
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: semgrep/semgrep:1.185.0
+    env:
+      SEMGREP_APP_URL: https://app.eu.semgrep.dev
+      SEMGREP_FAIL_OPEN_URL: https://fail-open.eu.semgrep.dev
+      SEMGREP_SEND_METRICS: "off"
+      SEMGREP_ENABLE_VERSION_CHECK: "0"
+      SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN_EU }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - run: semgrep ci --no-suppress-errors
