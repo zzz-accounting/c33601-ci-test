@@ -1,0 +1,43 @@
+name: Semgrep Visa
+
+on:
+  workflow_dispatch: {}
+  pull_request:
+    branches:
+      - main
+      - bafulton/ai/visa-ci-workflow
+
+permissions:
+  contents: read
+
+env:
+  SEMGREP_APP_URL: https://app.visa.semgrep.dev
+  SEMGREP_SEND_METRICS: "off"
+  SEMGREP_ENABLE_VERSION_CHECK: "0"
+  SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN_VISA }}
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: semgrep/semgrep:1.186.0
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - run: semgrep ci --no-suppress-errors
+
+  # the EU test party saw the Pro engine download fail on the pip-installed CLI while the Docker image worked
+  scan-pip:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - run: pipx install semgrep==1.186.0
+      - run: semgrep ci --no-suppress-errors
