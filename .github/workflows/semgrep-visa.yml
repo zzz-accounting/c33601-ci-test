@@ -5,7 +5,6 @@ on:
   pull_request:
     branches:
       - main
-      - bafulton/ai/visa-ci-workflow
 
 permissions:
   contents: read
